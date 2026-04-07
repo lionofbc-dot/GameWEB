@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VECTO Browser</title>
+</head>
+<body>
+<script>
+
+// --- BODY STYLE ---
+document.body.style.margin = "0";
+document.body.style.background = "black";
+document.body.style.fontFamily = "Arial, sans-serif";
+document.body.style.color = "white";
+document.body.style.overflow = "hidden";
+
+// --- BACKGROUND GRID ---
+const grid = document.createElement("div");
+grid.style.position = "fixed";
+grid.style.width = "100%";
+grid.style.height = "100%";
+grid.style.backgroundImage = `
+  linear-gradient(#0ff22a22 1px, transparent 1px),
+  linear-gradient(90deg, #0ff22a22 1px, transparent 1px)
+`;
+grid.style.backgroundSize = "40px 40px";
+grid.style.animation = "moveGrid 10s linear infinite";
+document.body.appendChild(grid);
+
+const style = document.createElement("style");
+style.innerHTML = `
+@keyframes moveGrid {
+  from { background-position: 0 0; }
+  to { background-position: 40px 40px; }
+}
+`;
+document.head.appendChild(style);
+
+// --- TOP BAR ---
+const topBar = document.createElement("div");
+topBar.style.position = "fixed";
+topBar.style.top = "0";
+topBar.style.left = "0";
+topBar.style.width = "100%";
+topBar.style.height = "60px";
+topBar.style.background = "#000c";
+topBar.style.backdropFilter = "blur(10px)";
+topBar.style.display = "flex";
+topBar.style.alignItems = "center";
+topBar.style.padding = "10px";
+topBar.style.boxShadow = "0 0 15px #0ff";
+topBar.style.zIndex = "10";
+document.body.appendChild(topBar);
+
+// --- TITLE ---
+const title = document.createElement("div");
+title.innerText = "VECTO.exe";
+title.style.fontSize = "1.5em";
+title.style.fontWeight = "bold";
+title.style.marginRight = "20px";
+title.style.color = "#0ff";
+topBar.appendChild(title);
+
+// --- INPUT ---
+const input = document.createElement("input");
+input.placeholder = "Enter destination...";
+input.style.flex = "1";
+input.style.padding = "10px";
+input.style.borderRadius = "10px";
+input.style.border = "none";
+input.style.outline = "none";
+input.style.background = "#111";
+input.style.color = "#0ff";
+topBar.appendChild(input);
+
+// --- BUTTON ---
+const goBtn = document.createElement("button");
+goBtn.innerText = "ENTER";
+goBtn.style.marginLeft = "10px";
+goBtn.style.padding = "10px";
+goBtn.style.border = "none";
+goBtn.style.borderRadius = "10px";
+goBtn.style.background = "#0ff";
+goBtn.style.cursor = "pointer";
+topBar.appendChild(goBtn);
+
+// --- HUD (XP SYSTEM) ---
+let xp = 0;
+let level = 1;
+
+const hud = document.createElement("div");
+hud.style.position = "fixed";
+hud.style.bottom = "10px";
+hud.style.left = "10px";
+hud.style.padding = "10px";
+hud.style.background = "#000a";
+hud.style.border = "1px solid #0ff";
+hud.style.borderRadius = "10px";
+hud.style.boxShadow = "0 0 10px #0ff";
+hud.style.zIndex = "10";
+document.body.appendChild(hud);
+
+function updateHUD(){
+  hud.innerHTML = `LEVEL ${level}<br>XP: ${xp}/100`;
+}
+
+// --- FRAME ---
+const frame = document.createElement("iframe");
+frame.style.position = "absolute";
+frame.style.top = "60px";
+frame.style.left = "0";
+frame.style.width = "100%";
+frame.style.height = "calc(100% - 60px)";
+frame.style.border = "none";
+frame.style.zIndex = "1";
+document.body.appendChild(frame);
+
+// --- PORTAL ---
+const portal = document.createElement("div");
+portal.style.position = "absolute";
+portal.style.top = "50%";
+portal.style.left = "50%";
+portal.style.transform = "translate(-50%, -50%) scale(0)";
+portal.style.width = "200px";
+portal.style.height = "200px";
+portal.style.borderRadius = "50%";
+portal.style.background = "radial-gradient(circle, #0ff, transparent)";
+portal.style.boxShadow = "0 0 50px #0ff, 0 0 100px #0ff";
+portal.style.transition = "transform 0.5s ease-out";
+portal.style.zIndex = "9";
+document.body.appendChild(portal);
+
+// --- LEVEL SYSTEM ---
+function gainXP(){
+  xp += 20;
+  if(xp >= 100){
+    xp = 0;
+    level++;
+  }
+  updateHUD();
+}
+
+// --- NAVIGATION ---
+function go(){
+  let value = input.value.trim();
+  if(!value) return;
+
+  let url;
+
+  if(value.startsWith("http") || value.includes(".")){
+    url = value.startsWith("http") ? value : "https://" + value;
+  } else {
+    url = "https://www.google.com/search?q=" + encodeURIComponent(value);
+  }
+
+  // PORTAL ANIMATION
+  portal.style.transform = "translate(-50%, -50%) scale(1)";
+  
+  setTimeout(() => {
+    portal.style.transform = "translate(-50%, -50%) scale(10)";
+  }, 200);
+
+  setTimeout(() => {
+    frame.src = url;
+    portal.style.transform = "translate(-50%, -50%) scale(0)";
+    gainXP();
+  }, 700);
+}
+
+// --- EVENTS ---
+goBtn.onclick = go;
+
+input.addEventListener("keydown", e => {
+  if(e.key === "Enter") go();
+});
+
+// --- INIT ---
+updateHUD();
+
+</script>
+</body>
+</html>
